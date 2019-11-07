@@ -10,21 +10,11 @@ class TestMiner(unittest.TestCase):
     def test_parse_var_line(self):
         line = "Output:Variable,*,Heating Coil Crankcase Heater Electric Power,hourly; !- HVAC Average [W]"
         d = parse_var_line(line)
-        self.assertEqual(d["name"], "Heating Coil Crankcase Heater Electric Power")
-        self.assertEqual(d["comment"], "HVAC Average")
-        self.assertEqual(d["unit"], "W")
+        self.assertEqual(d, "Heating Coil Crankcase Heater Electric Power")
 
-        line = "Output:Variable,*,Heating Coil Crankcase Heater Electric Energy,hourly; !- HVAC Sum [J]"
+        line = "Zone,Average,Site Outdoor Air Drybulb Temperature [C]"
         d = parse_var_line(line)
-        self.assertEqual(d["name"], "Heating Coil Crankcase Heater Electric Energy")
-        self.assertEqual(d["comment"], "HVAC Sum")
-        self.assertEqual(d["unit"], "J")
-
-        line = "Output:Variable,*,Cooling Coil Runtime Fraction,hourly; !- HVAC Average []"
-        d = parse_var_line(line)
-        self.assertEqual(d["name"], "Cooling Coil Runtime Fraction")
-        self.assertEqual(d["comment"], "HVAC Average")
-        self.assertEqual(d["unit"], "")
+        self.assertEqual(d, "Site Outdoor Air Drybulb Temperature")
 
     def test_parse_file(self):
         file_str = "! Program Version,EnergyPlus, Version 9.3.0-7bb5e69fa0, YMD=2019.11.07 09:44,\n" \
@@ -40,10 +30,7 @@ class TestMiner(unittest.TestCase):
         v = parse_file(f_dir)
 
         self.assertEqual(len(v), 2)
-        self.assertEqual(v[0]["name"], "Site Outdoor Air Drybulb Temperature")
-        self.assertEqual(v[0]["comment"], "Zone Average")
-        self.assertEqual(v[0]["unit"], "C")
+        self.assertEqual(v[0], "Site Outdoor Air Drybulb Temperature")
 
-        self.assertEqual(v[1]["name"], "Site Outdoor Air Dewpoint Temperature")
-        self.assertEqual(v[1]["comment"], "Zone Average")
-        self.assertEqual(v[1]["unit"], "C")
+        self.assertEqual(v[1], "Site Outdoor Air Dewpoint Temperature")
+

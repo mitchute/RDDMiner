@@ -2,27 +2,27 @@ import sys
 
 
 def parse_var_line(line):
-    tokens = line.split(";")
-    var_str = tokens[0].strip()
-    comment_str = tokens[1].strip()
+    if ";" in line:
+        tokens = line.split(";")
+        var_str = tokens[0].strip()
+        tokens = var_str.split(",")
+        name = tokens[2].strip()
+    else:
+        tokens = line.split(",")
+        name = tokens[2].split("[")[0].strip()
 
-    tokens = var_str.split(",")
-    name = tokens[2]
-
-    tokens = comment_str.strip("!- ").split("[")
-    comment = tokens[0].strip()
-    unit = tokens[1].split("]")[0].strip()
-
-    return {"name": name, "comment": comment, "unit": unit}
+    return name
 
 
 def parse_file(f_path):
     v = []
 
     with open(f_path, 'r') as f:
+        idx = 0
         for line in f:
             line = line.strip()
-            if line[0] == "!":
+            if (line[0] == "!") or (idx < 2):
+                idx += 1
                 continue
             v.append(parse_var_line(line))
 
@@ -33,19 +33,19 @@ def mine_rdd(f_path_1, f_path_2, name):
     v_1 = parse_file(f_path_1)
     v_2 = parse_file(f_path_2)
 
-    v_1 = sorted(v_1, key=lambda i: (i["name"]))
-    v_2 = sorted(v_2, key=lambda i: (i["name"]))
+    v_1 = sorted(v_1)
+    v_2 = sorted(v_2)
 
     with open('RDDMissing_{}.csv'.format(name), 'w+') as f_missing, open('RDDBoth_{}.csv'.format(name), 'w+') as f_both:
         for d in v_1:
             if d not in v_2:
-                f_missing.write("{},{},{},{},{},{}\n".format(d["name"], d["comment"], d["unit"], "", "", ""))
+                f_missing.write("{},{}\n".format(d, ""))
             else:
-                f_both.write("{},{},{}\n".format(d["name"], d["comment"], d["unit"]))
+                f_both.write("{}\n".format(d))
 
         for d in v_2:
             if d not in v_1:
-                f_missing.write("{},{},{},{},{},{}\n".format("", "", "", d["name"], d["comment"], d["unit"]))
+                f_missing.write("{},{}\n".format("", d))
 
 
 if __name__ == "__main__":
